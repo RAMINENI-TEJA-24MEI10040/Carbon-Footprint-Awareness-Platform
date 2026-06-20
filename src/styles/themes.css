@@ -1,0 +1,89 @@
+/* Light and Dark Theme Variable Palettes */
+
+:root[data-theme="light"] {
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f1f5f9;
+  
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  
+  --primary: #059669; /* Emerald Green */
+  --primary-hover: #047857;
+  --primary-light: #ecfdf5;
+  --primary-rgb: 5, 150, 105;
+  
+  --secondary: #0284c7; /* Sky Blue */
+  --secondary-hover: #0369a1;
+  --secondary-light: #e0f2fe;
+  --secondary-rgb: 2, 132, 199;
+
+  --accent: #d97706; /* Amber for Warning/Medium */
+  --accent-hover: #b45309;
+  --accent-light: #fef3c7;
+  
+  --danger: #dc2626; /* Crimson Red */
+  --danger-hover: #b91c1c;
+  --danger-light: #fee2e2;
+  
+  --border: #e2e8f0;
+  --border-focus: #059669;
+  --focus-ring: rgba(5, 150, 105, 0.4);
+  
+  /* Glassmorphism settings */
+  --glass-bg: rgba(255, 255, 255, 0.8);
+  --glass-border: rgba(226, 232, 240, 0.8);
+  --glass-blur: blur(16px);
+  
+  /* Sustainability Score levels */
+  --score-excellent: #10b981;
+  --score-good: #84cc16;
+  --score-fair: #eab308;
+  --score-poor: #f97316;
+  --score-critical: #ef4444;
+}
+
+:root[data-theme="dark"] {
+  --bg-primary: #080c14;
+  --bg-secondary: #0f172a;
+  --bg-tertiary: #1e293b;
+  
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #64748b;
+  
+  --primary: #10b981; /* Bright Emerald */
+  --primary-hover: #34d399;
+  --primary-light: rgba(16, 185, 129, 0.1);
+  --primary-rgb: 16, 185, 129;
+  
+  --secondary: #38bdf8; /* Lighter Sky Blue */
+  --secondary-hover: #7dd3fc;
+  --secondary-light: rgba(56, 189, 248, 0.1);
+  --secondary-rgb: 56, 189, 248;
+
+  --accent: #f59e0b; /* Amber */
+  --accent-hover: #fbbf24;
+  --accent-light: rgba(245, 158, 11, 0.1);
+  
+  --danger: #f87171; /* Coral Red */
+  --danger-hover: #fca5a5;
+  --danger-light: rgba(248, 113, 113, 0.1);
+  
+  --border: #1e293b;
+  --border-focus: #10b981;
+  --focus-ring: rgba(16, 185, 129, 0.5);
+  
+  /* Glassmorphism settings */
+  --glass-bg: rgba(15, 23, 42, 0.8);
+  --glass-border: rgba(30, 41, 59, 0.8);
+  --glass-blur: blur(16px);
+  
+  /* Sustainability Score levels */
+  --score-excellent: #34d399;
+  --score-good: #a3e635;
+  --score-fair: #fde047;
+  --score-poor: #fb923c;
+  --score-critical: #f87171;
+}
