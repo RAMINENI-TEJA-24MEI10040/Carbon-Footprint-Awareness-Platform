@@ -42,12 +42,12 @@ export class CarbonCalculator {
     }
 
     // Retrieve corresponding emission factor
-    const categoryFactors = (EMISSION_FACTORS as any)[category];
-    if (!categoryFactors || typeof categoryFactors[type] !== 'number') {
+    const categoryFactors = EMISSION_FACTORS[category];
+    if (!categoryFactors || !(type in categoryFactors)) {
       return 0;
     }
 
-    const factor = categoryFactors[type];
+    const factor = categoryFactors[type as keyof typeof categoryFactors];
     const co2 = value * factor;
     
     return Number(co2.toFixed(4));

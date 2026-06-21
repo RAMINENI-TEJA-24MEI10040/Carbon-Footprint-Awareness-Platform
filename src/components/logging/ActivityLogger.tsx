@@ -62,7 +62,7 @@ export const ActivityLogger: React.FC = () => {
     addLog({
       timestamp,
       category,
-      type: type as any,
+      type: type as ActivityLog['type'],
       value: validatedVal,
       unit,
       notes: notes.trim()
@@ -132,7 +132,7 @@ export const ActivityLogger: React.FC = () => {
       parsedLogs.push({
         timestamp: new Date(dateInput).toISOString(),
         category: catInput,
-        type: typeInput as any,
+        type: typeInput as ActivityLog['type'],
         value: validatedVal,
         unit,
         notes: noteInput

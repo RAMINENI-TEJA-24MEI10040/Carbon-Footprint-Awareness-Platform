@@ -8,7 +8,20 @@ import InsightsPanel from './components/insights/InsightsPanel';
 import { Leaf, Moon, Sun, Settings, User, Sparkles } from 'lucide-react';
 
 export const AppContent: React.FC = () => {
-  const { theme, toggleTheme, profile, updateProfile, streak } = useApp();
+  const { 
+    theme, 
+    toggleTheme, 
+    profile, 
+    updateProfile, 
+    streak,
+    token,
+    isAdmin,
+    verifyAndSetToken,
+    logoutAdmin,
+    adminUnlockAllBadges,
+    adminClearAuditTrail,
+    adminSeedLoadLogs
+  } = useApp();
   const [activeTab, setActiveTab] = useState<'dashboard' | 'logging' | 'simulator' | 'goals' | 'insights' | 'settings'>('dashboard');
 
   // Local state for Settings form
@@ -18,6 +31,8 @@ export const AppContent: React.FC = () => {
   const [gridFactor, setGridFactor] = useState<string>(profile.gridFactorOverride?.toString() || '0.38');
   
   const [settingsSuccess, setSettingsSuccess] = useState<boolean>(false);
+  const [jwtInput, setJwtInput] = useState<string>(token || '');
+  const [jwtMsg, setJwtMsg] = useState<{ text: string; isError: boolean } | null>(null);
 
   const handleSettingsSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -140,7 +155,7 @@ export const AppContent: React.FC = () => {
                 </div>
               )}
 
-              <form onSubmit={handleSettingsSubmit}>
+              <form onSubmit={handleSettingsSubmit} key={`${profile.name}-${profile.householdSize}-${profile.country}-${profile.gridFactorOverride || ''}`}>
                 <div className="form-group">
                   <label htmlFor="settings-name" className="form-label">Full Name</label>
                   <input
@@ -204,6 +219,129 @@ export const AppContent: React.FC = () => {
                   Save Profile Settings
                 </button>
               </form>
+            </div>
+
+            <div className="card" style={{ marginTop: '20px' }}>
+              <h3 style={{ marginBottom: '15px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Sparkles size={20} style={{ color: 'var(--accent)' }} />
+                Developer & Admin Access
+              </h3>
+              <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '20px' }}>
+                Provide a valid JWT token to authenticate administrative access.
+              </p>
+
+              {jwtMsg && (
+                <div style={{ 
+                  color: jwtMsg.isError ? 'var(--error)' : 'var(--primary)', 
+                  fontSize: '0.85rem', 
+                  marginBottom: '15px',
+                  padding: '8px 12px',
+                  borderRadius: 'var(--border-radius)',
+                  backgroundColor: 'var(--bg-secondary)',
+                  borderLeft: `3px solid ${jwtMsg.isError ? 'var(--error)' : 'var(--primary)'}`
+                }}>
+                  {jwtMsg.text}
+                </div>
+              )}
+
+              {isAdmin ? (
+                <div>
+                  <div style={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'center',
+                    backgroundColor: 'var(--bg-secondary)',
+                    padding: '12px',
+                    borderRadius: 'var(--border-radius)',
+                    marginBottom: '20px'
+                  }}>
+                    <div>
+                      <strong style={{ display: 'block', fontSize: '0.9rem' }}>Admin Access: ACTIVE</strong>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Logged in as John Doe</span>
+                    </div>
+                    <button 
+                      type="button" 
+                      className="btn btn-secondary" 
+                      style={{ padding: '6px 12px', fontSize: '0.8rem' }}
+                      onClick={() => {
+                        logoutAdmin();
+                        setJwtInput('');
+                        setJwtMsg({ text: 'Admin access deactivated.', isError: false });
+                      }}
+                    >
+                      Logout
+                    </button>
+                  </div>
+
+                  <h4 style={{ fontSize: '0.85rem', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Admin Operations Panel</h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    <button 
+                      type="button" 
+                      className="btn btn-secondary" 
+                      style={{ justifyContent: 'center', width: '100%' }}
+                      onClick={() => {
+                        adminUnlockAllBadges();
+                        setJwtMsg({ text: 'Success: Gamification data seeded. All badges are now unlocked!', isError: false });
+                      }}
+                    >
+                      ⚡ Seed Badges & Unlock All Achievements
+                    </button>
+                    <button 
+                      type="button" 
+                      className="btn btn-secondary" 
+                      style={{ justifyContent: 'center', width: '100%' }}
+                      onClick={() => {
+                        adminSeedLoadLogs();
+                        setJwtMsg({ text: 'Success: 100 benchmark activity records successfully loaded!', isError: false });
+                      }}
+                    >
+                      📊 Seed 100 Load-Test Activity Logs
+                    </button>
+                    <button 
+                      type="button" 
+                      className="btn btn-secondary" 
+                      style={{ justifyContent: 'center', width: '100%', color: 'var(--error)' }}
+                      onClick={() => {
+                        adminClearAuditTrail();
+                        setJwtMsg({ text: 'Success: Audit trail log cleared.', isError: false });
+                      }}
+                    >
+                      🗑️ Clear System Audit Trail
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <form onSubmit={async (e) => {
+                  e.preventDefault();
+                  if (!jwtInput.trim()) {
+                    setJwtMsg({ text: 'Please enter a token.', isError: true });
+                    return;
+                  }
+                  const success = await verifyAndSetToken(jwtInput.trim());
+                  if (success) {
+                    setJwtMsg({ text: '✓ Admin authentication successful! Welcome, John Doe.', isError: false });
+                  } else {
+                    setJwtMsg({ text: '✗ Invalid JWT token or signature mismatch.', isError: true });
+                  }
+                }}>
+                  <div className="form-group">
+                    <label htmlFor="settings-jwt" className="form-label">Paste JWT Token</label>
+                    <textarea
+                      id="settings-jwt"
+                      rows={3}
+                      className="form-control"
+                      style={{ fontFamily: 'monospace', fontSize: '0.75rem', resize: 'vertical' }}
+                      value={jwtInput}
+                      onChange={(e) => setJwtInput(e.target.value)}
+                      placeholder="eyJhbGciOi..."
+                      required
+                    />
+                  </div>
+                  <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '10px' }}>
+                    Verify & Authenticate
+                  </button>
+                </form>
+              )}
             </div>
           </div>
         )}

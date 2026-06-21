@@ -1,4 +1,4 @@
-import { ActivityLog, UserProfile, HistoricalAuditEntry } from '../domain/calculator/types';
+import { ActivityLog, UserProfile, HistoricalAuditEntry, FoodActivity } from '../domain/calculator/types';
 import { Goal } from '../domain/goals/GoalManager';
 import CarbonCalculator from '../domain/calculator/CarbonCalculator';
 
@@ -11,6 +11,8 @@ export interface AppState {
   points: number;
   theme: 'light' | 'dark';
   auditLogs: HistoricalAuditEntry[];
+  token?: string;
+  isAdmin?: boolean;
 }
 
 export class StorageService {
@@ -133,7 +135,7 @@ export class StorageService {
         id: nextId('food', logIdx++),
         timestamp: getOffsetDate(i),
         category: 'food',
-        type: type as any,
+        type: type as FoodActivity['type'],
         value: 1,
         unit: 'meals',
         co2: CarbonCalculator.calculateCo2('food', type, 1),

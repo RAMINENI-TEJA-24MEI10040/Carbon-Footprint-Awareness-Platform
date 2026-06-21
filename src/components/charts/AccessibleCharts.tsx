@@ -18,33 +18,38 @@ interface LineData {
   value: number;
 }
 
-// -------------------------------------------------------------
-// 1. ACCESSIBLE PIE CHART
-// -------------------------------------------------------------
-export const AccessiblePieChart: React.FC<{ data: PieSlice[]; title: string }> = ({ data, title }) => {
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+interface PieSliceCalculated {
+  pathData: string;
+  color: string;
+  label: string;
+  percentage: string;
+  value: string;
+  lx: number;
+  ly: number;
+  index: number;
+}
 
-  const total = data.reduce((sum, item) => sum + item.value, 0);
-  
-  // Calculate SVG Pie Slices
+function calculatePieSlices(data: PieSlice[], total: number): PieSliceCalculated[] {
   let accumulatedAngle = 0;
-  
-  const slices = data.map((item, index) => {
-    if (total === 0) return null;
+  const cx = 100;
+  const cy = 100;
+  const radius = 80;
+  const labelRadius = 55;
+
+  const result: PieSliceCalculated[] = [];
+
+  for (let i = 0; i < data.length; i++) {
+    const item = data[i];
+    if (total === 0) continue;
     const percentage = (item.value / total) * 100;
     const angle = (item.value / total) * 360;
-    
-    // Convert polar coordinates to Cartesian
+
     const startAngle = accumulatedAngle;
     const endAngle = accumulatedAngle + angle;
     accumulatedAngle = endAngle;
 
     const radStart = (startAngle - 90) * (Math.PI / 180);
     const radEnd = (endAngle - 90) * (Math.PI / 180);
-
-    const radius = 80;
-    const cx = 100;
-    const cy = 100;
 
     const x1 = cx + radius * Math.cos(radStart);
     const y1 = cy + radius * Math.sin(radStart);
@@ -60,13 +65,11 @@ export const AccessiblePieChart: React.FC<{ data: PieSlice[]; title: string }> =
       Z
     `;
 
-    // Mid angle for text label placement
     const midRad = ((startAngle + endAngle) / 2 - 90) * (Math.PI / 180);
-    const labelRadius = 55;
     const lx = cx + labelRadius * Math.cos(midRad);
     const ly = cy + labelRadius * Math.sin(midRad);
 
-    return {
+    result.push({
       pathData,
       color: item.color,
       label: item.label,
@@ -74,9 +77,22 @@ export const AccessiblePieChart: React.FC<{ data: PieSlice[]; title: string }> =
       value: item.value.toFixed(1),
       lx,
       ly,
-      index
-    };
-  }).filter(Boolean);
+      index: i
+    });
+  }
+
+  return result;
+}
+
+// -------------------------------------------------------------
+// 1. ACCESSIBLE PIE CHART
+// -------------------------------------------------------------
+export const AccessiblePieChart: React.FC<{ data: PieSlice[]; title: string }> = ({ data, title }) => {
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
+  const total = data.reduce((sum, item) => sum + item.value, 0);
+  
+  const slices = calculatePieSlices(data, total);
 
   return (
     <div className="chart-wrapper">

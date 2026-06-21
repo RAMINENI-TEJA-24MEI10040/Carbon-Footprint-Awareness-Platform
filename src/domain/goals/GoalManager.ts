@@ -117,7 +117,7 @@ export class GoalManager {
    * Forecasts the success probability of the goal (0 - 100).
    * Relies on the remaining time, rate of progress, and current state.
    */
-  static estimateSuccessProbability(goal: Goal, _logs: ActivityLog[]): number {
+  static estimateSuccessProbability(goal: Goal, logs: ActivityLog[]): number {
     const now = Date.now();
     const start = new Date(goal.startDate).getTime();
     const target = new Date(goal.targetDate).getTime();
@@ -148,6 +148,16 @@ export class GoalManager {
     // Boost probability if current rate is already below or at target
     if (goal.currentValue <= goal.targetValue) {
       prob += 20;
+    }
+
+    // Check if the user has logged any activities in this goal period to verify active engagement
+    const hasActiveLogs = logs.some(log => {
+      const time = new Date(log.timestamp).getTime();
+      return time >= start && time <= now;
+    });
+
+    if (!hasActiveLogs) {
+      prob -= 15; // penalize inactive engagement
     }
 
     return Math.max(10, Math.min(98, Math.round(prob)));

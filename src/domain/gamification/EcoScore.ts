@@ -33,7 +33,7 @@ export class EcoScore {
 
     // Standard baseline is 600 kg CO2e/month per person
     // If user produces 0, score is 100. If user produces 1200+ kg, score is reduced to 10.
-    let baseScore = 100 - (monthlyRate / 600) * 50;
+    const baseScore = 100 - (monthlyRate / 600) * 50;
 
     // Boost score for offsets and eco actions (composting, recycling, solar)
     const offsetBonus = (monthlyOffsetRate / 100) * 15; // +15 points for every 100kg offset per month
@@ -52,7 +52,7 @@ export class EcoScore {
     
     const actionBonus = Math.min(15, ecoActionCount * 0.5); // 0.5 points per eco action, up to 15 points
 
-    let finalScore = baseScore + offsetBonus + actionBonus;
+    const finalScore = baseScore + offsetBonus + actionBonus;
     
     // Clamp score between 0 and 100
     return Math.max(0, Math.min(100, Math.round(finalScore)));
