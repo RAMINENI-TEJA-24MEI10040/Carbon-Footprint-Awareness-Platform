@@ -12,7 +12,15 @@ export class AuditLogger {
     details: string
   ): HistoricalAuditEntry {
     const randomArray = new Uint32Array(1);
-    window.crypto.getRandomValues(randomArray);
+    const cryptoProvider = typeof crypto !== 'undefined' && typeof crypto.getRandomValues === 'function'
+      ? crypto
+      : (typeof window !== 'undefined' && window.crypto ? window.crypto : null);
+
+    if (cryptoProvider) {
+      cryptoProvider.getRandomValues(randomArray);
+    } else {
+      randomArray[0] = Math.floor(Math.random() * 0x100000000);
+    }
     const randomHex = randomArray[0].toString(36);
     
     return {

@@ -9,6 +9,16 @@ describe('EcoScore', () => {
     expect(score).toBe(50);
   });
 
+  it('should calculate Eco Score correctly with logs', () => {
+    const logs: ActivityLog[] = [
+      { id: '1', timestamp: new Date().toISOString(), category: 'energy', type: 'electricity', value: 100, unit: 'kWh', co2: 38.0 },
+      { id: '2', timestamp: new Date().toISOString(), category: 'waste', type: 'recycling', value: 20, unit: 'kg', co2: -7.0 }
+    ];
+    const score = EcoScore.calculateEcoScore(logs);
+    expect(score).toBeGreaterThan(0);
+    expect(score).toBeLessThanOrEqual(100);
+  });
+
   it('should calculate XP levels correctly', () => {
     // Level 1: 0 - 150 XP
     const lv1 = EcoScore.getLevelAndProgress(50);
@@ -21,6 +31,14 @@ describe('EcoScore', () => {
     expect(lv2.level).toBe(2);
     expect(lv2.xpInCurrentLevel).toBe(50); // 200 - 150 = 50
     expect(lv2.xpForNextLevel).toBe(300);
+  });
+
+  it('should return correct sustainability ratings and color classes', () => {
+    expect(EcoScore.getSustainabilityRating(90).label).toBe('Climate Hero');
+    expect(EcoScore.getSustainabilityRating(75).label).toBe('Eco Guardian');
+    expect(EcoScore.getSustainabilityRating(60).label).toBe('Sustaining Citizen');
+    expect(EcoScore.getSustainabilityRating(40).label).toBe('High Emitter');
+    expect(EcoScore.getSustainabilityRating(10).label).toBe('Carbon Heavy');
   });
 
   it('should calculate logging streaks correctly', () => {
@@ -41,6 +59,10 @@ describe('EcoScore', () => {
     expect(streak).toBe(3); // 3 consecutive days
   });
 
+  it('should return 0 streak for empty logs', () => {
+    expect(EcoScore.calculateLoggingStreak([])).toBe(0);
+  });
+
   it('should break streak when logs are too far apart', () => {
     const today = new Date().toISOString();
     const fourDaysAgo = new Date();
@@ -55,17 +77,47 @@ describe('EcoScore', () => {
     expect(streak).toBe(1); // just today, streak was broken
   });
 
-  it('should unlock first steps badge on first log entry', () => {
+  it('should return 0 streak if latest log is older than yesterday', () => {
+    const threeDaysAgo = new Date();
+    threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+
+    const logs: ActivityLog[] = [
+      { id: '1', timestamp: threeDaysAgo.toISOString(), category: 'food', type: 'vegan', value: 1, unit: 'meals', co2: 0.6 }
+    ];
+
+    const streak = EcoScore.calculateLoggingStreak(logs);
+    expect(streak).toBe(0);
+  });
+
+  it('should unlock badges correctly under different user actions', () => {
     const logs: ActivityLog[] = [
       { id: '1', timestamp: new Date().toISOString(), category: 'food', type: 'vegan', value: 1, unit: 'meals', co2: 0.6 }
     ];
 
-    const badges = EcoScore.evaluateBadges(logs, 0, 1);
-    const firstLogBadge = badges.find(b => b.id === 'badge_first_log');
-    expect(firstLogBadge!.unlocked).toBe(true);
-    
-    // Streak badge should remain locked (streak is 1, needs 3)
-    const streakBadge = badges.find(b => b.id === 'badge_streak_3');
-    expect(streakBadge!.unlocked).toBe(false);
+    let badges = EcoScore.evaluateBadges(logs, 0, 1);
+    expect(badges.find(b => b.id === 'badge_first_log')!.unlocked).toBe(true);
+    expect(badges.find(b => b.id === 'badge_commute_clean')!.unlocked).toBe(false);
+
+    // Unlocking commute clean badge
+    const transitLogs: ActivityLog[] = [
+      { id: '1', timestamp: new Date().toISOString(), category: 'transportation', type: 'bicycle', value: 5, unit: 'km', co2: 0 }
+    ];
+    badges = EcoScore.evaluateBadges(transitLogs, 0, 1);
+    expect(badges.find(b => b.id === 'badge_commute_clean')!.unlocked).toBe(true);
+
+    // Unlocking solar power badge
+    const solarLogs: ActivityLog[] = [
+      { id: '1', timestamp: new Date().toISOString(), category: 'energy', type: 'solar_offset', value: 10, unit: 'kWh', co2: -3.8 }
+    ];
+    badges = EcoScore.evaluateBadges(solarLogs, 0, 1);
+    expect(badges.find(b => b.id === 'badge_solar_power')!.unlocked).toBe(true);
+
+    // Unlocking goal getter badge
+    badges = EcoScore.evaluateBadges(logs, 1, 1);
+    expect(badges.find(b => b.id === 'badge_goal_getter')!.unlocked).toBe(true);
+
+    // Unlocking streak badge
+    badges = EcoScore.evaluateBadges(logs, 0, 3);
+    expect(badges.find(b => b.id === 'badge_streak_3')!.unlocked).toBe(true);
   });
 });
