@@ -1,8 +1,9 @@
 # CarbonIQ: Enterprise-Grade Carbon Footprint Assistant
 
-[![Deploy to Cloud Run](https://deploy.cloud.run/button.svg)](https://deploy.cloud.run/?git_repo=https://github.com/RAMINENI-TEJA-24MEI10040/Carbon-Footprint-Awareness-Platform.git)
+[![Deploy to Cloud Run](https://deploy.cloud.run/button.svg)](https://deploy.cloud.run?repo=https://github.com/RAMINENI-TEJA-24MEI10040/Carbon-Footprint-Awareness-Platform.git)
 
 CarbonIQ is a production-ready, highly optimized Single Page Application (SPA) designed to empower individuals to measure, analyze, and reduce their personal carbon footprints. The application is built using **React + TypeScript + Vite + Vanilla CSS**, prioritizing code quality, security, performance, and WCAG 2.2 AA accessibility standards.
+
 
 
 ---
